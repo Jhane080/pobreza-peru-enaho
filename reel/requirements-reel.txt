@@ -1,0 +1,12 @@
+# Entorno aparte para el reel: Qwen3-TTS y Whisper pesan varios GB y no hacen
+# falta para los datos ni el dashboard.
+faster-whisper==1.2.1
+imageio-ffmpeg==0.6.0
+jiwer==4.0.0
+num2words==0.5.14
+numpy==2.5.4
+pillow==12.3.0
+qwen-tts==0.1.1
+soundfile==0.14.0
+torch==2.14.1
+torchaudio==2.11.0

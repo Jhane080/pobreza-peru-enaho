@@ -7,7 +7,7 @@ Tarea 3 del curso Python Intermedio (QLAB PUCP, 2026): *Del dato a la historia, 
 | | |
 |---|---|
 | 🌐 **Dashboard** | https://jhane080.github.io/pobreza-peru-enaho/ |
-| 🎬 **Reel** | [`reel/reel.mp4`](reel/reel.mp4) |
+| 🎬 **Reel** | [`reel/reel.mp4`](reel/reel.mp4) (59 s, 1080 × 1920) |
 | 💼 **LinkedIn** | _(enlace a la publicación)_ |
 
 ![Dashboard en escritorio](capturas/dashboard_callao_cambio.png)
