@@ -1,0 +1,88 @@
+{
+  "hallazgo_1": {
+    "pobreza_2019": 20.19,
+    "pobreza_2020": 30.13,
+    "pobreza_2024": 27.58,
+    "extrema_2019": 2.85,
+    "extrema_2024": 5.5,
+    "millones_pobres_2019": 6.6,
+    "millones_pobres_2024": 9.51
+  },
+  "hallazgo_2": {
+    "urbano_2019": 14.58,
+    "rural_2019": 40.78,
+    "lima_metropolitana_2019": 14.2,
+    "millones_pobres_urbanos_2019": 3.74,
+    "millones_pobres_rurales_2019": 2.86,
+    "porcentaje_pobres_en_ciudades_2019": 56.7,
+    "urbano_2024": 24.81,
+    "rural_2024": 39.3,
+    "lima_metropolitana_2024": 28.21,
+    "millones_pobres_urbanos_2024": 6.92,
+    "millones_pobres_rurales_2024": 2.59,
+    "porcentaje_pobres_en_ciudades_2024": 72.7
+  },
+  "hallazgo_3": {
+    "mas_subio": {
+      "Callao": {
+        "pobreza_2019": 14.3,
+        "pobreza_2024": 33.9,
+        "cambio": 19.5
+      },
+      "Ucayali": {
+        "pobreza_2019": 12.3,
+        "pobreza_2024": 27.1,
+        "cambio": 14.8
+      },
+      "Tumbes": {
+        "pobreza_2019": 13.7,
+        "pobreza_2024": 26.9,
+        "cambio": 13.2
+      },
+      "Lima": {
+        "pobreza_2019": 14.2,
+        "pobreza_2024": 27.1,
+        "cambio": 12.9
+      },
+      "Loreto": {
+        "pobreza_2019": 32.2,
+        "pobreza_2024": 43.0,
+        "cambio": 10.8
+      }
+    },
+    "mas_bajo": {
+      "Cusco": {
+        "pobreza_2019": 23.0,
+        "pobreza_2024": 18.5,
+        "cambio": -4.5
+      },
+      "Amazonas": {
+        "pobreza_2019": 30.5,
+        "pobreza_2024": 25.8,
+        "cambio": -4.7
+      },
+      "Apurímac": {
+        "pobreza_2019": 29.1,
+        "pobreza_2024": 24.0,
+        "cambio": -5.1
+      },
+      "Ayacucho": {
+        "pobreza_2019": 39.4,
+        "pobreza_2024": 32.8,
+        "cambio": -6.6
+      }
+    },
+    "departamentos_que_subieron_claramente": 10,
+    "departamentos_que_bajaron_claramente": 0,
+    "mayor_pobreza_2024": {
+      "Cajamarca": 45.0,
+      "Loreto": 43.0,
+      "Puno": 39.9
+    },
+    "menor_pobreza_2024": {
+      "Ica": 6.0,
+      "Moquegua": 11.0,
+      "Madre de Dios": 11.2
+    }
+  }
+}

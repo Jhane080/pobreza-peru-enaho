@@ -1,0 +1,11 @@
+[project]
+name = "pobreza-peru-enaho"
+version = "0.1.0"
+description = "Pobreza monetaria por departamento en el Perú, 2019-2024 (ENAHO del INEI)"
+requires-python = ">=3.12"
+dependencies = [
+    "geopandas>=1.0",
+    "matplotlib>=3.9",
+    "pandas>=2.2",
+    "pyarrow>=17.0",
+]

@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pobreza en el Perú</title>
+<meta name="description" content="Dashboard interactivo: ¿cómo cambió la pobreza monetaria por departamento en el Perú entre 2019 y 2024? Datos de la ENAHO del INEI.">
+<style>
+:root {
+  color-scheme: light;
+  --pagina: #f9f9f7;
+  --superficie: #fcfcfb;
+  --tinta: #0b0b0b;
+  --tinta-2: #52514e;
+  --tenue: #898781;
+  --grilla: #e1e0d9;
+  --eje: #c3c2b7;
+  --borde: rgba(11, 11, 11, 0.10);
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
+  --serie-3: #1baf7a;
+  --barra: #c3c2b7;
+  --neutro: #f0efec;
+  --rojo-1: #f2a3a2;
+  --rojo-2: #c93636;
+  --acento: #eb6834;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --pagina: #0d0d0d;
+    --superficie: #1a1a19;
+    --tinta: #f0efec;
+    --tinta-2: #c3c2b7;
+    --tenue: #898781;
+    --grilla: #2c2c2a;
+    --eje: #383835;
+    --borde: rgba(255, 255, 255, 0.10);
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
+    --serie-3: #199e70;
+    --barra: #55544f;
+    --neutro: #383835;
+    --rojo-1: #a34545;
+    --rojo-2: #e66767;
+    --acento: #f08c3c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --pagina: #0d0d0d;
+  --superficie: #1a1a19;
+  --tinta: #f0efec;
+  --tinta-2: #c3c2b7;
+  --tenue: #898781;
+  --grilla: #2c2c2a;
+  --eje: #383835;
+  --borde: rgba(255, 255, 255, 0.10);
+  --serie-1: #3987e5;
+  --serie-2: #d95926;
+  --serie-3: #199e70;
+  --barra: #55544f;
+  --neutro: #383835;
+  --rojo-1: #a34545;
+  --rojo-2: #e66767;
+  --acento: #f08c3c;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--pagina);
+  color: var(--tinta);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+.contenedor { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+a { color: var(--serie-1); }
+
+header { padding: 40px 0 24px; }
+.etiqueta {
+  display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--acento);
+}
+h1 { font-size: clamp(28px, 4.5vw, 44px); line-height: 1.1; margin: 8px 0 12px; }
+.pregunta { font-size: clamp(17px, 2.2vw, 21px); color: var(--tinta-2); max-width: 820px; margin: 0 0 16px; }
+.ficha { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--tinta-2); }
+.ficha b { color: var(--tinta); }
+
+.filtros {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end;
+  padding: 12px 0; background: var(--pagina); border-bottom: 1px solid var(--borde);
+}
+.filtro { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--tinta-2); }
+select, input[type="search"] {
+  font: inherit; font-size: 15px; color: var(--tinta); background: var(--superficie);
+  border: 1px solid var(--eje); border-radius: 8px; padding: 7px 10px; min-width: 150px;
+}
+.botones { display: inline-flex; border: 1px solid var(--eje); border-radius: 8px; overflow: hidden; }
+.botones button {
+  font: inherit; font-size: 14px; padding: 7px 12px; border: 0; cursor: pointer;
+  background: var(--superficie); color: var(--tinta-2);
+}
+.botones button[aria-pressed="true"] { background: var(--tinta); color: var(--superficie); font-weight: 600; }
+button.simple {
+  font: inherit; font-size: 14px; padding: 7px 12px; cursor: pointer; border-radius: 8px;
+  border: 1px solid var(--eje); background: var(--superficie); color: var(--tinta);
+}
+
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+.kpi {
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 16px;
+}
+.kpi .titulo { font-size: 13px; color: var(--tinta-2); min-height: 2.6em; }
+.kpi .valor { font-size: clamp(26px, 3.4vw, 36px); font-weight: 700; line-height: 1.15; margin: 4px 0; }
+.kpi .nota { font-size: 13px; color: var(--tenue); }
+
+.rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tarjeta {
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px;
+  padding: 16px; min-width: 0;
+}
+.tarjeta h2 { font-size: 17px; margin: 0 0 2px; }
+.tarjeta .sub { font-size: 13px; color: var(--tinta-2); margin: 0 0 8px; }
+.cabecera-tarjeta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: start; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--tinta-2); margin: 4px 0; }
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.muestra { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.muestra.banda { height: 10px; opacity: 0.25; }
+.muestra.punteada { background: none !important; border-top: 2px dashed var(--tinta-2); height: 0; }
+.grafico { width: 100%; }
+.grafico svg { display: block; width: 100%; height: auto; overflow: visible; }
+.alto { grid-row: span 2; }
+
+svg text { fill: var(--tenue); font-size: 12px; font-family: inherit; }
+svg .etiqueta-dato { fill: var(--tinta); font-weight: 600; }
+svg .grilla line { stroke: var(--grilla); }
+svg .grilla path { display: none; }
+svg .eje path, svg .eje line { stroke: var(--eje); }
+.departamento { cursor: pointer; stroke: var(--superficie); stroke-width: 1; }
+.departamento.activo { stroke: var(--tinta); stroke-width: 2.5; }
+.barra-fila { cursor: pointer; }
+
+.tooltip {
+  position: fixed; pointer-events: none; z-index: 10; opacity: 0;
+  background: var(--superficie); color: var(--tinta); border: 1px solid var(--borde);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); border-radius: 8px; padding: 8px 10px;
+  font-size: 13px; max-width: 240px; transition: opacity 0.1s;
+}
+.tooltip b { display: block; margin-bottom: 2px; }
+.tooltip .fila-tt { display: flex; justify-content: space-between; gap: 12px; color: var(--tinta-2); }
+.tooltip .fila-tt span:last-child { color: var(--tinta); font-variant-numeric: tabular-nums; }
+
+section.texto { margin: 40px 0; }
+section.texto h2 { font-size: 26px; margin: 0 0 16px; }
+.hallazgos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.hallazgo { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 20px; }
+.hallazgo .numero { font-size: 13px; font-weight: 700; color: var(--acento); letter-spacing: 0.05em; }
+.hallazgo h3 { font-size: 19px; margin: 6px 0 8px; line-height: 1.25; }
+.hallazgo p { margin: 0; color: var(--tinta-2); font-size: 15px; }
+.columnas { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; }
+.columnas h3 { font-size: 17px; margin: 0 0 6px; }
+.columnas p, .columnas li { color: var(--tinta-2); font-size: 15px; }
+.columnas ul { padding-left: 20px; margin: 0; }
+
+.tabla-envoltura { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--grilla); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--tinta-2); font-weight: 600; cursor: pointer; }
+td { font-variant-numeric: tabular-nums; }
+tr.activo td { background: color-mix(in srgb, var(--acento) 14%, transparent); }
+
+footer { border-top: 1px solid var(--borde); padding: 24px 0 40px; font-size: 14px; color: var(--tinta-2); }
+
+@media (max-width: 900px) {
+  .kpis { grid-template-columns: 1fr 1fr; }
+  .rejilla, .hallazgos, .columnas { grid-template-columns: 1fr; }
+  .alto { grid-row: auto; }
+  /* En el celular los filtros fijos taparían media pantalla. */
+  .filtros { position: static; }
+}
+</style>
+</head>
+<body>
+<div class="tooltip" id="tooltip" role="status"></div>
+
+<header class="contenedor">
+  <span class="etiqueta">Perú · ENAHO 2019–2024</span>
+  <h1>¿La pobreza volvió a su nivel de antes de la pandemia?</h1>
+  <p class="pregunta">
+    Pregunta de investigación: <b>¿cómo cambió la pobreza monetaria por departamento en el Perú
+    entre 2019 y 2024?</b> En 2020 la pandemia empujó a millones de personas bajo la línea de
+    pobreza. Este tablero muestra dónde se recuperaron y dónde no.
+  </p>
+  <div class="ficha">
+    <span><b>Cobertura:</b> 25 departamentos, área urbana y rural</span>
+    <span><b>Periodo:</b> 2019 a 2024 (anual)</span>
+    <span><b>Muestra:</b> 205,090 hogares encuestados</span>
+    <span><b>Fuente:</b> <a href="https://proyectos.inei.gob.pe/microdatos/" target="_blank" rel="noopener">INEI, ENAHO, módulo 34 Sumaria</a></span>
+  </div>
+</header>
+
+<div class="filtros" role="group" aria-label="Filtros del tablero">
+  <div class="contenedor" style="display:flex;flex-wrap:wrap;gap:12px 16px;align-items:end;width:100%">
+    <label class="filtro">Año
+      <select id="filtro-anio"></select>
+    </label>
+    <label class="filtro">Indicador
+      <select id="filtro-indicador">
+        <option value="pobreza">Pobreza monetaria</option>
+        <option value="extrema">Pobreza extrema</option>
+        <option value="brecha">Brecha de pobreza</option>
+      </select>
+    </label>
+    <label class="filtro">Departamento
+      <select id="filtro-departamento"></select>
+    </label>
+    <div class="filtro">Mapa
+      <div class="botones" id="filtro-mapa">
+        <button type="button" data-modo="nivel" aria-pressed="true">Nivel del año</button>
+        <button type="button" data-modo="cambio" aria-pressed="false">Cambio desde 2019</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="contenedor">
+  <section class="kpis" aria-label="Indicadores principales">
+    <div class="kpi"><div class="titulo" id="kpi1-titulo"></div><div class="valor" id="kpi1-valor"></div><div class="nota" id="kpi1-nota"></div></div>
+    <div class="kpi"><div class="titulo" id="kpi2-titulo"></div><div class="valor" id="kpi2-valor"></div><div class="nota" id="kpi2-nota"></div></div>
+    <div class="kpi"><div class="titulo" id="kpi3-titulo"></div><div class="valor" id="kpi3-valor"></div><div class="nota" id="kpi3-nota"></div></div>
+    <div class="kpi"><div class="titulo" id="kpi4-titulo"></div><div class="valor" id="kpi4-valor"></div><div class="nota" id="kpi4-nota"></div></div>
+  </section>
+
+  <div class="rejilla">
+    <div class="tarjeta alto">
+      <h2 id="mapa-titulo"></h2>
+      <p class="sub">Haz clic en un departamento para seleccionarlo.</p>
+      <div class="grafico" id="mapa"></div>
+      <div class="grafico" id="mapa-leyenda"></div>
+    </div>
+    <div class="tarjeta">
+      <h2 id="serie-titulo"></h2>
+      <p class="sub">La banda es el intervalo de confianza al 95 % del departamento.</p>
+      <div class="leyenda" id="serie-leyenda"></div>
+      <div class="grafico" id="serie"></div>
+    </div>
+    <div class="tarjeta">
+      <h2 id="ambitos-titulo"></h2>
+      <p class="sub">La ciudad, el campo y Lima Metropolitana (Lima y Callao).</p>
+      <div class="leyenda" id="ambitos-leyenda"></div>
+      <div class="grafico" id="ambitos"></div>
+    </div>
+    <div class="tarjeta" style="grid-column: 1 / -1">
+      <h2 id="ranking-titulo"></h2>
+      <p class="sub">Las líneas finas son el intervalo de confianza al 95 %. Si dos intervalos se cruzan, la diferencia entre esos departamentos no es clara.</p>
+      <div class="grafico" id="ranking"></div>
+    </div>
+  </div>
+
+  <section class="texto" id="hallazgos">
+    <h2>Tres hallazgos</h2>
+    <div class="hallazgos">
+      <article class="hallazgo">
+        <div class="numero">HALLAZGO 1</div>
+        <h3>La pobreza no volvió a su nivel de antes de la pandemia</h3>
+        <p>Pasó de 20.2 % en 2019 a 30.1 % en 2020 y en 2024 seguía en 27.6 %. Son 9.5 millones de
+          personas pobres, 2.9 millones más que en 2019. La pobreza extrema casi se duplicó: de 2.9 % a 5.5 %.</p>
+      </article>
+      <article class="hallazgo">
+        <div class="numero">HALLAZGO 2</div>
+        <h3>La pobreza se volvió más urbana</h3>
+        <p>En las ciudades subió de 14.6 % a 24.8 %; en Lima Metropolitana se duplicó (14.2 % a 28.2 %).
+          Hoy 7 de cada 10 pobres viven en zonas urbanas (eran 57 % en 2019). En el campo la pobreza
+          total casi no cambió (40.8 % a 39.3 %), pero la extrema subió de 9.8 % a 15.5 %.</p>
+      </article>
+      <article class="hallazgo">
+        <div class="numero">HALLAZGO 3</div>
+        <h3>Un golpe desigual: la costa y la selva no se recuperaron</h3>
+        <p>En 10 de 25 departamentos la pobreza de 2024 es claramente mayor que la de 2019, y en ninguno es
+          claramente menor. Callao subió 19.5 puntos (14.3 % a 33.9 %), Ucayali 14.8 y Tumbes 13.2.
+          Ayacucho, Apurímac, Amazonas y Cusco bajaron de 4 a 7 puntos, pero dentro del margen de error.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="texto">
+    <div class="cabecera-tarjeta">
+      <h2>Los datos de cada departamento</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="search" id="buscador" placeholder="Buscar departamento…" aria-label="Buscar departamento">
+        <button type="button" class="simple" id="descargar">Descargar CSV</button>
+      </div>
+    </div>
+    <p class="sub" id="tabla-sub" style="color:var(--tinta-2);font-size:14px"></p>
+    <div class="tabla-envoltura"><table id="tabla"></table></div>
+  </section>
+
+  <section class="texto" id="metodologia">
+    <h2>Metodología, fuentes y limitaciones</h2>
+    <div class="columnas">
+      <div>
+        <h3>Cómo se construyeron los indicadores</h3>
+        <ul>
+          <li><b>Pobreza monetaria:</b> % de personas cuyo gasto mensual per cápita está por debajo
+            del costo de una canasta básica de alimentos y otros bienes (línea de pobreza). Es la
+            variable <code>pobreza</code> de la sumaria (códigos 1 y 2).</li>
+          <li><b>Pobreza extrema:</b> % de personas cuyo gasto no cubre ni la canasta de alimentos (código 1).</li>
+          <li><b>Brecha de pobreza:</b> cuánto le falta en promedio al gasto de cada persona para llegar a la
+            línea, como % de la línea (0 para los no pobres). Mide la profundidad, no solo la cantidad.</li>
+          <li>Cada hogar se pondera por <code>factor07 × mieperho</code>, el número de personas que
+            representa. Así replicamos la cifra oficial nacional del INEI en los seis años
+            (por ejemplo, 27.58 % frente a 27.6 % en 2024).</li>
+          <li>El intervalo de confianza al 95 % considera que la ENAHO sortea conglomerados dentro de
+            estratos (linealización de Taylor, estratos = departamento × estrato, conglomerado = <code>conglome</code>).</li>
+          <li>"Claramente mayor o menor" significa que los intervalos de 2019 y 2024 no se tocan, una regla exigente.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Fuentes</h3>
+        <ul>
+          <li>INEI, <a href="https://proyectos.inei.gob.pe/microdatos/" target="_blank" rel="noopener">Encuesta Nacional de Hogares (ENAHO)</a>,
+            módulo 34 Sumaria, anual 2019 a 2024 (códigos 687, 737, 759, 784, 906 y 966). Descargado el 1 de noviembre de 2026.</li>
+          <li>INEI, informes "Evolución de la pobreza monetaria", para validar las cifras nacionales.</li>
+          <li>Límites departamentales: <a href="https://github.com/d2cml-ai/Data-Science-Python/tree/main/sessions/06-geoespacial" target="_blank" rel="noopener">curso Data Science con Python (d2cml-ai)</a>.</li>
+        </ul>
+        <h3 style="margin-top:16px">Limitaciones</h3>
+        <ul>
+          <li>La ENAHO es una encuesta: las cifras por departamento tienen márgenes de error de 3 a 6 puntos.
+            Diferencias pequeñas entre departamentos o años pueden no ser reales.</li>
+          <li>En 2020 parte de las entrevistas se hizo por teléfono por la pandemia; el INEI ajustó los
+            factores, pero ese año es menos comparable.</li>
+          <li>La pobreza monetaria mide gasto, no acceso a servicios, salud o educación (pobreza multidimensional).</li>
+          <li>Lima (15) incluye Lima Metropolitana y Lima provincias; Callao (07) va aparte. El INEI publica
+            algunos departamentos en grupos por su margen de error; aquí se muestran por separado.</li>
+          <li>Es un análisis descriptivo: no identifica las causas de los cambios.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="contenedor">
+    Elaborado por Jhanela Carhuaz Fuster · Tarea 3, Python Intermedio (QLAB PUCP, 2026) ·
+    <a href="https://github.com/Jhane080/pobreza-peru-enaho" target="_blank" rel="noopener">Código y datos en GitHub</a><br>
+    Hecho con ayuda de Claude Code (IA) para escribir el código y el diseño. Todas las cifras se
+    calcularon con los microdatos del INEI y se verificaron contra las cifras oficiales.
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const NOMBRE_INDICADOR = { pobreza: "Pobreza monetaria", extrema: "Pobreza extrema", brecha: "Brecha de pobreza" };
+const PERU = "PE";
+
+const estado = { anio: 2024, indicador: "pobreza", departamento: PERU, modoMapa: "nivel", busqueda: "" };
+let datos = null;
+let limites = null;
+const tooltip = d3.select("#tooltip");
+
+function color(nombre) {
+  return getComputedStyle(document.documentElement).getPropertyValue(nombre).trim();
+}
+function modoOscuro() {
+  return color("--superficie") === "#1a1a19";
+}
+function porcentaje(valor) { return valor.toFixed(1) + " %"; }
+function puntos(valor) { return (valor > 0 ? "+" : "") + valor.toFixed(1) + " pp"; }
+
+function filaDepartamento(codigo, anio) {
+  if (codigo === PERU) return datos.ambitos.find(f => f.ambito === "Perú" && f.anio === anio);
+  return datos.departamentos.find(f => f.codigo === codigo && f.anio === anio);
+}
+function nombreDe(codigo) {
+  if (codigo === PERU) return "Perú";
+  return datos.departamentos.find(f => f.codigo === codigo).departamento;
+}
+
+function mostrarTooltip(evento, html) {
+  tooltip.html(html).style("opacity", 1);
+  const ancho = tooltip.node().offsetWidth;
+  let x = evento.clientX + 14;
+  if (x + ancho > window.innerWidth - 8) x = evento.clientX - ancho - 14;
+  tooltip.style("left", x + "px").style("top", (evento.clientY + 14) + "px");
+}
+function ocultarTooltip() { tooltip.style("opacity", 0); }
+function filaTooltip(etiqueta, valor) {
+  return `<div class="fila-tt"><span>${etiqueta}</span><span>${valor}</span></div>`;
+}
+
+function seleccionar(codigo) {
+  // Un segundo clic sobre el mismo departamento vuelve al total nacional.
+  estado.departamento = (estado.departamento === codigo) ? PERU : codigo;
+  document.getElementById("filtro-departamento").value = estado.departamento;
+  dibujarTodo();
+}
+
+// ---------- KPIs ----------
+function dibujarKpis() {
+  const ind = estado.indicador;
+  const nombre = NOMBRE_INDICADOR[ind];
+  const lugar = nombreDe(estado.departamento);
+  const actual = filaDepartamento(estado.departamento, estado.anio);
+  const base = filaDepartamento(estado.departamento, 2019);
+
+  d3.select("#kpi1-titulo").text(`${nombre} en ${lugar}, ${estado.anio}`);
+  d3.select("#kpi1-valor").text(porcentaje(actual[ind]));
+  d3.select("#kpi1-nota").text(`IC 95 %: ${actual[ind + "_ic_inf"].toFixed(1)} a ${actual[ind + "_ic_sup"].toFixed(1)} · ${actual.hogares_muestra.toLocaleString("es-PE")} hogares`);
+
+  d3.select("#kpi2-titulo").text(`Cambio desde 2019 en ${lugar}`);
+  if (estado.anio === 2019) {
+    d3.select("#kpi2-valor").text("Año base");
+    d3.select("#kpi2-nota").text("Elige otro año para comparar con 2019");
+  } else {
+    const cambio = actual[ind] - base[ind];
+    const claro = actual[ind + "_ic_inf"] > base[ind + "_ic_sup"] || actual[ind + "_ic_sup"] < base[ind + "_ic_inf"];
+    d3.select("#kpi2-valor").text(puntos(cambio));
+    d3.select("#kpi2-nota").text(`De ${porcentaje(base[ind])} a ${porcentaje(actual[ind])} · ${claro ? "cambio claro" : "dentro del margen de error"}`);
+  }
+
+  // La brecha no se cuenta en personas: para ese indicador mostramos los pobres.
+  const indPersonas = ind === "brecha" ? "pobreza" : ind;
+  const personas = actual[indPersonas] / 100 * actual.poblacion;
+  d3.select("#kpi3-titulo").text(`Personas en ${indPersonas === "extrema" ? "pobreza extrema" : "pobreza"} en ${lugar}, ${estado.anio}`);
+  d3.select("#kpi3-valor").text(personas >= 1e6 ? (personas / 1e6).toFixed(2) + " millones" : Math.round(personas / 1000).toLocaleString("es-PE") + " mil");
+  d3.select("#kpi3-nota").text(`De ${(actual.poblacion / 1e6).toFixed(2)} millones de habitantes`);
+
+  const delAnio = datos.departamentos.filter(f => f.anio === estado.anio);
+  const mayor = delAnio.reduce((a, b) => (b[ind] > a[ind] ? b : a));
+  const menor = delAnio.reduce((a, b) => (b[ind] < a[ind] ? b : a));
+  d3.select("#kpi4-titulo").text(`Departamento con mayor ${nombre.toLowerCase()}, ${estado.anio}`);
+  d3.select("#kpi4-valor").text(mayor.departamento);
+  d3.select("#kpi4-nota").text(`${porcentaje(mayor[ind])} · el menor: ${menor.departamento} (${porcentaje(menor[ind])})`);
+}
+
+// ---------- Mapa ----------
+function dibujarMapa() {
+  const ind = estado.indicador;
+  const contenedor = document.getElementById("mapa");
+  const ancho = contenedor.clientWidth;
+  const alto = Math.round(ancho * 1.25);
+  const cambio = estado.modoMapa === "cambio";
+
+  d3.select("#mapa-titulo").text(cambio
+    ? `${NOMBRE_INDICADOR[ind]}: cambio de 2019 a ${estado.anio}`
+    : `${NOMBRE_INDICADOR[ind]} por departamento, ${estado.anio}`);
+
+  const valores = {};
+  datos.departamentos.filter(f => f.anio === estado.anio).forEach(f => {
+    const base = filaDepartamento(f.codigo, 2019);
+    valores[f.codigo] = { fila: f, base: base, cambio: f[ind] - base[ind] };
+  });
+
+  // Rampa secuencial de un solo tono; en modo oscuro lo bajo se funde con el fondo.
+  let rampa = ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"];
+  if (modoOscuro()) rampa = ["#104281", "#1c5cab", "#2a78d6", "#6da7ec", "#cde2fb"];
+  const maximo = d3.max(datos.departamentos, f => f[ind]);
+  const escalaNivel = d3.scaleSequential(d3.interpolateRgbBasis(rampa)).domain([0, maximo]);
+  const limite = Math.max(5, Math.ceil(d3.max(Object.values(valores), v => Math.abs(v.cambio)) / 5) * 5);
+  const escalaCambio = d3.scaleDiverging(d3.interpolateRgbBasis(
+    [modoOscuro() ? "#3987e5" : "#1c5cab", modoOscuro() ? "#1c5cab" : "#86b6ef", color("--neutro"), color("--rojo-1"), color("--rojo-2")]
+  )).domain([-limite, 0, limite]);
+
+  // geoIdentity dibuja las coordenadas tal cual: evita problemas con el sentido de los polígonos.
+  const proyeccion = d3.geoIdentity().reflectY(true).fitSize([ancho, alto], limites);
+  const camino = d3.geoPath(proyeccion);
+
+  const svg = d3.select(contenedor).html("").append("svg")
+    .attr("viewBox", `0 0 ${ancho} ${alto}`).attr("role", "img")
+    .attr("aria-label", "Mapa del Perú por departamento");
+
+  svg.selectAll("path").data(limites.features).join("path")
+    .attr("class", d => "departamento" + (d.properties.FIRST_IDDP === estado.departamento ? " activo" : ""))
+    .attr("d", camino)
+    .attr("fill", d => {
+      const v = valores[d.properties.FIRST_IDDP];
+      return cambio ? escalaCambio(v.cambio) : escalaNivel(v.fila[ind]);
+    })
+    .on("mousemove", (evento, d) => {
+      const v = valores[d.properties.FIRST_IDDP];
+      mostrarTooltip(evento, `<b>${v.fila.departamento}</b>` +
+        filaTooltip(`${estado.anio}`, porcentaje(v.fila[ind])) +
+        filaTooltip("IC 95 %", `${v.fila[ind + "_ic_inf"].toFixed(1)} a ${v.fila[ind + "_ic_sup"].toFixed(1)}`) +
+        filaTooltip("2019", porcentaje(v.base[ind])) +
+        filaTooltip("Cambio", puntos(v.cambio)));
+    })
+    .on("mouseleave", ocultarTooltip)
+    .on("click", (evento, d) => seleccionar(d.properties.FIRST_IDDP));
+
+  svg.select(".activo").raise();
+
+  // Leyenda: barra de color con su escala.
+  const anchoLeyenda = Math.min(ancho, 320);
+  const leyenda = d3.select("#mapa-leyenda").html("").append("svg")
+    .attr("viewBox", `0 0 ${anchoLeyenda} 46`).style("width", anchoLeyenda + "px");
+  const degradado = leyenda.append("defs").append("linearGradient").attr("id", "degradado");
+  const escala = cambio ? escalaCambio : escalaNivel;
+  const dominio = cambio ? [-limite, limite] : [0, maximo];
+  d3.range(0, 1.01, 0.1).forEach(t => {
+    degradado.append("stop").attr("offset", t).attr("stop-color", escala(dominio[0] + t * (dominio[1] - dominio[0])));
+  });
+  leyenda.append("rect").attr("x", 0).attr("y", 18).attr("width", anchoLeyenda).attr("height", 10)
+    .attr("rx", 2).attr("fill", "url(#degradado)");
+  leyenda.append("text").attr("x", 0).attr("y", 12)
+    .text(cambio ? "Cambio en puntos porcentuales (azul = bajó, rojo = subió)" : "% de personas");
+  const x = d3.scaleLinear().domain(dominio).range([0, anchoLeyenda]);
+  leyenda.append("g").attr("class", "eje").attr("transform", "translate(0,28)")
+    .call(d3.axisBottom(x).ticks(5).tickSize(4).tickFormat(d => (cambio && d > 0 ? "+" : "") + d));
+}
+
+// ---------- Serie de tiempo ----------
+function dibujarSerie() {
+  const ind = estado.indicador;
+  const contenedor = document.getElementById("serie");
+  const ancho = contenedor.clientWidth;
+  const alto = 260;
+  const margen = { arriba: 12, derecha: 86, abajo: 26, izquierda: 36 };
+  const lugar = nombreDe(estado.departamento);
+
+  d3.select("#serie-titulo").text(estado.departamento === PERU
+    ? `${NOMBRE_INDICADOR[ind]} en el Perú, 2019–2024`
+    : `${NOMBRE_INDICADOR[ind]}: ${lugar} frente al Perú`);
+
+  const serieDepto = datos.anios.map(anio => filaDepartamento(estado.departamento, anio));
+  const seriePeru = datos.anios.map(anio => filaDepartamento(PERU, anio));
+  const series = [{ nombre: "Perú", filas: seriePeru, color: color("--serie-1") }];
+  if (estado.departamento !== PERU) series.push({ nombre: lugar, filas: serieDepto, color: color("--serie-2") });
+
+  const leyenda = d3.select("#serie-leyenda").html("");
+  series.forEach(s => leyenda.append("span").html(`<i class="muestra" style="background:${s.color}"></i>${s.nombre}`));
+  leyenda.append("span").html(`<i class="muestra banda" style="background:${series[series.length - 1].color}"></i>IC 95 %`);
+
+  const x = d3.scaleLinear().domain([2019, 2024]).range([margen.izquierda, ancho - margen.derecha]);
+  const maximo = d3.max(series, s => d3.max(s.filas, f => f[ind + "_ic_sup"]));
+  const y = d3.scaleLinear().domain([0, maximo * 1.1]).nice().range([alto - margen.abajo, margen.arriba]);
+
+  const svg = d3.select(contenedor).html("").append("svg").attr("viewBox", `0 0 ${ancho} ${alto}`);
+  svg.append("g").attr("class", "grilla").attr("transform", `translate(${margen.izquierda},0)`)
+    .call(d3.axisLeft(y).ticks(5).tickSize(-(ancho - margen.izquierda - margen.derecha)).tickFormat(d => d + "%"))
+    .call(g => g.selectAll("text").attr("x", -6));
+  svg.append("g").attr("class", "eje").attr("transform", `translate(0,${alto - margen.abajo})`)
+    .call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("d")).tickSize(0)).call(g => g.select("path").remove())
+    .call(g => g.selectAll("text").attr("dy", "1.2em"));
+
+  // La banda del intervalo se dibuja solo para la serie principal (la última).
+  const principal = series[series.length - 1];
+  svg.append("path").datum(principal.filas)
+    .attr("fill", principal.color).attr("opacity", 0.18)
+    .attr("d", d3.area().x(f => x(f.anio)).y0(f => y(f[ind + "_ic_inf"])).y1(f => y(f[ind + "_ic_sup"])));
+
+  series.forEach(s => {
+    svg.append("path").datum(s.filas).attr("fill", "none").attr("stroke", s.color).attr("stroke-width", 2.5)
+      .attr("d", d3.line().x(f => x(f.anio)).y(f => y(f[ind])));
+    svg.selectAll(null).data(s.filas).join("circle")
+      .attr("cx", f => x(f.anio)).attr("cy", f => y(f[ind])).attr("r", 4)
+      .attr("fill", s.color).attr("stroke", color("--superficie")).attr("stroke-width", 2);
+    const ultimo = s.filas[s.filas.length - 1];
+    svg.append("text").attr("class", "etiqueta-dato").attr("x", x(2024) + 10).attr("y", y(ultimo[ind]))
+      .attr("dy", "0.35em").text(`${s.nombre.length > 10 ? s.nombre.slice(0, 9) + "…" : s.nombre} ${ultimo[ind].toFixed(1)}`);
+  });
+  separarEtiquetas(svg);
+
+  agregarCruz(svg, x, y, alto, margen, anio => {
+    let html = `<b>${anio}</b>`;
+    series.forEach(s => {
+      const f = s.filas.find(r => r.anio === anio);
+      html += filaTooltip(s.nombre, porcentaje(f[ind]));
+    });
+    const f = principal.filas.find(r => r.anio === anio);
+    html += filaTooltip("IC 95 %", `${f[ind + "_ic_inf"].toFixed(1)} a ${f[ind + "_ic_sup"].toFixed(1)}`);
+    return html;
+  });
+}
+
+// Si dos etiquetas finales quedan encimadas, las separamos.
+function separarEtiquetas(svg) {
+  const etiquetas = svg.selectAll("text.etiqueta-dato").nodes()
+    .map(n => ({ nodo: n, y: +n.getAttribute("y") })).sort((a, b) => a.y - b.y);
+  for (let i = 1; i < etiquetas.length; i++) {
+    if (etiquetas[i].y - etiquetas[i - 1].y < 15) {
+      etiquetas[i].y = etiquetas[i - 1].y + 15;
+      etiquetas[i].nodo.setAttribute("y", etiquetas[i].y);
+    }
+  }
+}
+
+// Línea vertical que sigue al mouse y muestra los valores del año más cercano.
+function agregarCruz(svg, x, y, alto, margen, contenido) {
+  const linea = svg.append("line").attr("stroke", color("--tenue")).attr("stroke-dasharray", "3 3")
+    .attr("y1", margen.arriba).attr("y2", alto - margen.abajo).style("opacity", 0);
+  svg.append("rect").attr("x", margen.izquierda).attr("y", 0)
+    .attr("width", Math.max(0, x.range()[1] - margen.izquierda)).attr("height", alto).attr("fill", "transparent")
+    .on("mousemove", evento => {
+      const [px] = d3.pointer(evento);
+      const anio = Math.round(x.invert(px));
+      linea.attr("x1", x(anio)).attr("x2", x(anio)).style("opacity", 1);
+      mostrarTooltip(evento, contenido(anio));
+    })
+    .on("mouseleave", () => { linea.style("opacity", 0); ocultarTooltip(); });
+}
+
+// ---------- Ámbitos ----------
+function dibujarAmbitos() {
+  const ind = estado.indicador;
+  const contenedor = document.getElementById("ambitos");
+  const ancho = contenedor.clientWidth;
+  const alto = 260;
+  const margen = { arriba: 12, derecha: 86, abajo: 26, izquierda: 36 };
+  d3.select("#ambitos-titulo").text(`${NOMBRE_INDICADOR[ind]} en la ciudad y en el campo`);
+
+  const series = [
+    { nombre: "Urbano", color: color("--serie-1"), punteada: false },
+    { nombre: "Rural", color: color("--serie-2"), punteada: false },
+    { nombre: "Lima Metropolitana", corto: "Lima Met.", color: color("--serie-3"), punteada: false },
+    { nombre: "Perú", color: color("--tinta-2"), punteada: true },
+  ];
+  series.forEach(s => { s.filas = datos.ambitos.filter(f => f.ambito === s.nombre); });
+
+  const leyenda = d3.select("#ambitos-leyenda").html("");
+  series.forEach(s => leyenda.append("span").html(
+    `<i class="muestra${s.punteada ? " punteada" : ""}" style="background:${s.color}"></i>${s.nombre}`));
+
+  const x = d3.scaleLinear().domain([2019, 2024]).range([margen.izquierda, ancho - margen.derecha]);
+  const maximo = d3.max(series, s => d3.max(s.filas, f => f[ind]));
+  const y = d3.scaleLinear().domain([0, maximo * 1.1]).nice().range([alto - margen.abajo, margen.arriba]);
+
+  const svg = d3.select(contenedor).html("").append("svg").attr("viewBox", `0 0 ${ancho} ${alto}`);
+  svg.append("g").attr("class", "grilla").attr("transform", `translate(${margen.izquierda},0)`)
+    .call(d3.axisLeft(y).ticks(5).tickSize(-(ancho - margen.izquierda - margen.derecha)).tickFormat(d => d + "%"))
+    .call(g => g.selectAll("text").attr("x", -6));
+  svg.append("g").attr("class", "eje").attr("transform", `translate(0,${alto - margen.abajo})`)
+    .call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("d")).tickSize(0)).call(g => g.select("path").remove())
+    .call(g => g.selectAll("text").attr("dy", "1.2em"));
+
+  series.forEach(s => {
+    svg.append("path").datum(s.filas).attr("fill", "none").attr("stroke", s.color).attr("stroke-width", 2.5)
+      .attr("stroke-dasharray", s.punteada ? "5 4" : null)
+      .attr("d", d3.line().x(f => x(f.anio)).y(f => y(f[ind])));
+    if (!s.punteada) {
+      svg.selectAll(null).data(s.filas).join("circle")
+        .attr("cx", f => x(f.anio)).attr("cy", f => y(f[ind])).attr("r", 4)
+        .attr("fill", s.color).attr("stroke", color("--superficie")).attr("stroke-width", 2);
+    }
+    const ultimo = s.filas[s.filas.length - 1];
+    svg.append("text").attr("class", "etiqueta-dato").attr("x", x(2024) + 10).attr("y", y(ultimo[ind]))
+      .attr("dy", "0.35em").text(`${s.corto || s.nombre} ${ultimo[ind].toFixed(1)}`);
+  });
+  separarEtiquetas(svg);
+
+  agregarCruz(svg, x, y, alto, margen, anio => {
+    let html = `<b>${anio}</b>`;
+    series.forEach(s => html += filaTooltip(s.nombre, porcentaje(s.filas.find(f => f.anio === anio)[ind])));
+    return html;
+  });
+}
+
+// ---------- Ranking ----------
+function dibujarRanking() {
+  const ind = estado.indicador;
+  const contenedor = document.getElementById("ranking");
+  const ancho = contenedor.clientWidth;
+  const filas = datos.departamentos.filter(f => f.anio === estado.anio).sort((a, b) => b[ind] - a[ind]);
+  const altoFila = 20;
+  const margen = { arriba: 22, derecha: 48, abajo: 24, izquierda: 104 };
+  const alto = margen.arriba + margen.abajo + filas.length * altoFila;
+  const peru = filaDepartamento(PERU, estado.anio);
+
+  d3.select("#ranking-titulo").text(`${NOMBRE_INDICADOR[ind]} por departamento, de mayor a menor, ${estado.anio}`);
+
+  const x = d3.scaleLinear().domain([0, d3.max(filas, f => f[ind + "_ic_sup"])]).nice()
+    .range([margen.izquierda, ancho - margen.derecha]);
+  const y = d3.scaleBand().domain(filas.map(f => f.codigo)).range([margen.arriba, alto - margen.abajo]).padding(0.25);
+
+  const svg = d3.select(contenedor).html("").append("svg").attr("viewBox", `0 0 ${ancho} ${alto}`);
+  svg.append("g").attr("class", "grilla").attr("transform", `translate(0,${alto - margen.abajo})`)
+    .call(d3.axisBottom(x).ticks(6).tickSize(-(alto - margen.arriba - margen.abajo)).tickFormat(d => d + "%"))
+    .call(g => g.selectAll("text").attr("dy", "1em"));
+
+  const grupo = svg.selectAll("g.barra-fila").data(filas).join("g").attr("class", "barra-fila")
+    .on("mousemove", (evento, f) => {
+      const base = filaDepartamento(f.codigo, 2019);
+      mostrarTooltip(evento, `<b>${f.departamento}</b>` +
+        filaTooltip(`${estado.anio}`, porcentaje(f[ind])) +
+        filaTooltip("IC 95 %", `${f[ind + "_ic_inf"].toFixed(1)} a ${f[ind + "_ic_sup"].toFixed(1)}`) +
+        filaTooltip("Cambio desde 2019", puntos(f[ind] - base[ind])) +
+        filaTooltip("Hogares encuestados", f.hogares_muestra.toLocaleString("es-PE")));
+    })
+    .on("mouseleave", ocultarTooltip)
+    .on("click", (evento, f) => seleccionar(f.codigo));
+
+  // Rectángulo invisible para que toda la fila responda al mouse, no solo la barra.
+  grupo.append("rect").attr("x", 0).attr("y", f => y(f.codigo) - 3).attr("width", ancho)
+    .attr("height", y.bandwidth() + 6).attr("fill", "transparent");
+  grupo.append("rect")
+    .attr("x", margen.izquierda).attr("y", f => y(f.codigo))
+    .attr("width", f => Math.max(0, x(f[ind]) - margen.izquierda)).attr("height", y.bandwidth()).attr("rx", 2)
+    .attr("fill", f => f.codigo === estado.departamento ? color("--serie-2") : color("--barra"));
+  grupo.append("line")
+    .attr("x1", f => x(f[ind + "_ic_inf"])).attr("x2", f => x(f[ind + "_ic_sup"]))
+    .attr("y1", f => y(f.codigo) + y.bandwidth() / 2).attr("y2", f => y(f.codigo) + y.bandwidth() / 2)
+    .attr("stroke", color("--tinta-2")).attr("stroke-width", 1.2);
+  grupo.append("text").attr("x", margen.izquierda - 8).attr("y", f => y(f.codigo) + y.bandwidth() / 2)
+    .attr("dy", "0.35em").attr("text-anchor", "end")
+    .attr("class", f => f.codigo === estado.departamento ? "etiqueta-dato" : null)
+    .style("fill", f => f.codigo === estado.departamento ? null : color("--tinta-2"))
+    .text(f => f.departamento);
+  grupo.append("text").attr("x", f => x(f[ind + "_ic_sup"]) + 6).attr("y", f => y(f.codigo) + y.bandwidth() / 2)
+    .attr("dy", "0.35em").text(f => f[ind].toFixed(1));
+
+  svg.append("line").attr("x1", x(peru[ind])).attr("x2", x(peru[ind]))
+    .attr("y1", margen.arriba - 6).attr("y2", alto - margen.abajo)
+    .attr("stroke", color("--serie-1")).attr("stroke-width", 2).attr("stroke-dasharray", "5 4");
+  svg.append("text").attr("x", x(peru[ind])).attr("y", margen.arriba - 10).attr("text-anchor", "middle")
+    .style("fill", color("--serie-1")).style("font-weight", 600).text(`Perú ${peru[ind].toFixed(1)} %`);
+}
+
+// ---------- Tabla ----------
+function dibujarTabla() {
+  const filas = datos.departamentos
+    .filter(f => f.anio === estado.anio)
+    .filter(f => f.departamento.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .includes(estado.busqueda.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")))
+    .sort((a, b) => b[estado.indicador] - a[estado.indicador]);
+
+  d3.select("#tabla-sub").text(`Año ${estado.anio} · ${filas.length} de 25 departamentos · ordenados por ${NOMBRE_INDICADOR[estado.indicador].toLowerCase()}. Haz clic en una fila para seleccionarla.`);
+
+  const tabla = d3.select("#tabla").html("");
+  tabla.append("thead").append("tr").selectAll("th")
+    .data(["Departamento", "Pobreza %", "IC 95 %", "Extrema %", "Brecha %", "Cambio pobreza desde 2019", "Hogares"])
+    .join("th").text(d => d);
+  const cuerpo = tabla.append("tbody");
+  filas.forEach(f => {
+    const base = filaDepartamento(f.codigo, 2019);
+    cuerpo.append("tr").attr("class", f.codigo === estado.departamento ? "activo" : null)
+      .style("cursor", "pointer").on("click", () => seleccionar(f.codigo))
+      .selectAll("td").data([
+        f.departamento, f.pobreza.toFixed(1), `${f.pobreza_ic_inf.toFixed(1)} – ${f.pobreza_ic_sup.toFixed(1)}`,
+        f.extrema.toFixed(1), f.brecha.toFixed(1), puntos(f.pobreza - base.pobreza),
+        f.hogares_muestra.toLocaleString("es-PE"),
+      ]).join("td").text(d => d);
+  });
+  return filas;
+}
+
+function descargarCsv() {
+  const filas = datos.departamentos.filter(f => f.departamento.toLowerCase().includes(estado.busqueda.toLowerCase()));
+  const columnas = Object.keys(filas[0]);
+  // El código va entre comillas para que Excel no le coma el cero de la izquierda.
+  const lineas = [columnas.join(",")].concat(filas.map(f => columnas.map(c => c === "codigo" ? `"${f[c]}"` : f[c]).join(",")));
+  const archivo = new Blob(["﻿" + lineas.join("\n")], { type: "text/csv;charset=utf-8" });
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(archivo);
+  enlace.download = "pobreza_departamentos_2019_2024.csv";
+  enlace.click();
+  URL.revokeObjectURL(enlace.href);
+}
+
+function dibujarTodo() {
+  dibujarKpis();
+  dibujarMapa();
+  dibujarSerie();
+  dibujarAmbitos();
+  dibujarRanking();
+  dibujarTabla();
+}
+
+// ---------- Inicio ----------
+Promise.all([d3.json("data/pobreza.json"), d3.json("data/departamentos.geojson")]).then(([pobreza, geo]) => {
+  datos = pobreza;
+  limites = geo;
+
+  d3.select("#filtro-anio").selectAll("option").data(datos.anios.slice().reverse()).join("option")
+    .attr("value", d => d).text(d => d);
+  const departamentos = datos.departamentos.filter(f => f.anio === 2024)
+    .sort((a, b) => a.departamento.localeCompare(b.departamento, "es"));
+  d3.select("#filtro-departamento").selectAll("option")
+    .data([{ codigo: PERU, departamento: "Perú (total nacional)" }].concat(departamentos)).join("option")
+    .attr("value", d => d.codigo).text(d => d.departamento);
+
+  // La URL puede traer filtros (?anio=2024&indicador=extrema&departamento=07&mapa=cambio)
+  // para compartir una vista concreta del tablero.
+  const parametros = new URLSearchParams(window.location.search);
+  if (datos.anios.includes(+parametros.get("anio"))) estado.anio = +parametros.get("anio");
+  if (NOMBRE_INDICADOR[parametros.get("indicador")]) estado.indicador = parametros.get("indicador");
+  if (departamentos.some(f => f.codigo === parametros.get("departamento"))) estado.departamento = parametros.get("departamento");
+  if (parametros.get("mapa") === "cambio") estado.modoMapa = "cambio";
+  document.getElementById("filtro-anio").value = estado.anio;
+  document.getElementById("filtro-indicador").value = estado.indicador;
+  document.getElementById("filtro-departamento").value = estado.departamento;
+  d3.selectAll("#filtro-mapa button").attr("aria-pressed", function () { return this.dataset.modo === estado.modoMapa; });
+
+  d3.select("#filtro-anio").on("change", e => { estado.anio = +e.target.value; dibujarTodo(); });
+  d3.select("#filtro-indicador").on("change", e => { estado.indicador = e.target.value; dibujarTodo(); });
+  d3.select("#filtro-departamento").on("change", e => { estado.departamento = e.target.value; dibujarTodo(); });
+  d3.selectAll("#filtro-mapa button").on("click", e => {
+    estado.modoMapa = e.currentTarget.dataset.modo;
+    d3.selectAll("#filtro-mapa button").attr("aria-pressed", function () { return this.dataset.modo === estado.modoMapa; });
+    dibujarMapa();
+  });
+  d3.select("#buscador").on("input", e => { estado.busqueda = e.target.value; dibujarTabla(); });
+  d3.select("#descargar").on("click", descargarCsv);
+
+  dibujarTodo();
+  let espera = null;
+  window.addEventListener("resize", () => { clearTimeout(espera); espera = setTimeout(dibujarTodo, 150); });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", dibujarTodo);
+}).catch(error => {
+  document.querySelector("main").insertAdjacentHTML("afterbegin",
+    `<p style="color:var(--rojo-2)">No se pudieron cargar los datos (${error}). Si abriste el archivo con doble clic, sírvelo con <code>uv run python -m http.server -d docs</code>.</p>`);
+});
+</script>
+</body>
+</html>

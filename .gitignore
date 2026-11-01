@@ -1,0 +1,10 @@
+# Microdatos del INEI: pesan cientos de MB. Se bajan con scripts/obtener_datos.py
+datos/originales/
+
+# Entorno y cachés
+.venv/
+__pycache__/
+
+# Audio intermedio del reel y nota de voz de referencia (dato personal)
+reel/audio/
+reel/recursos/mi_voz.*

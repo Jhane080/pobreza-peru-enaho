@@ -1,0 +1,8 @@
+Validación contra la pobreza oficial del INEI (% de personas)
+
+2019  hogares 34,565  pobreza 20.19 % (INEI 20.2)  extrema 2.85 % (INEI 2.9)  gasto<línea = pobre en 99.8 %  OK
+2020  hogares 34,490  pobreza 30.13 % (INEI 30.1)  extrema 5.15 % (INEI 5.1)  gasto<línea = pobre en 99.9 %  OK
+2021  hogares 34,245  pobreza 25.87 % (INEI 25.9)  extrema 4.12 % (INEI 4.1)  gasto<línea = pobre en 99.9 %  OK
+2022  hogares 34,213  pobreza 27.52 % (INEI 27.5)  extrema 5.01 % (INEI 5.0)  gasto<línea = pobre en 99.9 %  OK
+2023  hogares 33,886  pobreza 29.05 % (INEI 29.0)  extrema 5.75 % (INEI 5.7)  gasto<línea = pobre en 99.9 %  OK
+2024  hogares 33,691  pobreza 27.58 % (INEI 27.6)  extrema 5.50 % (INEI 5.5)  gasto<línea = pobre en 99.9 %  OK
