@@ -256,7 +256,7 @@ parser.add_argument("--modelos", required=True, help="carpeta con Qwen3-TTS y fa
 # leyó, se lo damos tal cual al clon, que aprende mejor con el texto exacto.
 parser.add_argument("--texto-referencia", help="el texto que se leyó en la nota de voz")
 # Para rehacer una sola escena sin volver a narrar las demás.
-parser.add_argument("--solo-escena", type=int, help="número de la escena que se vuelve a narrar")
+parser.add_argument("--solo-escena", type=int, nargs="+", help="números de las escenas que se vuelven a narrar")
 parser.add_argument("--reusar-audio", action="store_true",
                     help="usa los reel/audio/escena_N.wav ya generados y solo rehace el video")
 argumentos = parser.parse_args()
@@ -319,7 +319,7 @@ frecuencia = 24000
 for numero, escena in enumerate(guion["escenas"], start=1):
     ruta_escena = CARPETA_AUDIO / f"escena_{numero}.wav"
 
-    reusar_esta = argumentos.reusar_audio or (argumentos.solo_escena and numero != argumentos.solo_escena)
+    reusar_esta = argumentos.reusar_audio or (argumentos.solo_escena and numero not in argumentos.solo_escena)
     if reusar_esta:
         mejor_audio, frecuencia = soundfile.read(ruta_escena)
         mejores_palabras = transcribir(whisper, ruta_escena)

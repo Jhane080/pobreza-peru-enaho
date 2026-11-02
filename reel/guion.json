@@ -32,14 +32,14 @@
       "movimiento": "zoom"
     },
     {
-      "frase": "El golpe fue desigual. En el Callao la pobreza subió casi veinte puntos; en Ucayali y Tumbes, más de trece.",
+      "frase": "El golpe fue desigual. En el Callao la pobreza subió casi veinte puntos; en Ucayali y Tumbes, más de trece puntos.",
       "cifra": "+19,5 pts",
       "etiqueta": "subió la pobreza en el Callao desde 2019",
       "imagen": "figuras/mapa_cambio.png",
       "movimiento": "zoom"
     },
     {
-      "frase": "En diez de veinticinco departamentos la pobreza es claramente mayor que en dos mil diecinueve. Explora los datos de tu región en el tablero.",
+      "frase": "En diez de veinticinco departamentos la pobreza es claramente mayor que en dos mil diecinueve. Explora los datos de tu región en el tablero interactivo.",
       "cifra": "10 de 25",
       "etiqueta": "departamentos con más pobreza que en 2019",
       "imagen": "capturas/celular_largo.png",
