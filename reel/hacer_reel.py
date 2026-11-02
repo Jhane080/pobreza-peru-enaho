@@ -58,7 +58,7 @@ INTENTOS = 6
 # Nombres que Whisper no conoce: sin esta pista escribe "Ucayaly" o "Inei".
 PALABRAS_ESPERADAS = "INEI Callao Ucayali Tumbes Lima Metropolitana pandemia"
 CORRECCIONES = {"Inei": "INEI", "inei": "INEI", "Ucayaly": "Ucayali", "Callali": "Callao", "Callali,": "Callao,", "peruano": "peruanos", "será": "era"}
-PAUSA_ENTRE_ESCENAS = 0.45
+PAUSA_ENTRE_ESCENAS = 0.8
 PALABRAS_POR_SUBTITULO = 4
 # La música va unos 20 dB por debajo de la voz para que nunca la tape.
 VOLUMEN_MUSICA = 0.09
