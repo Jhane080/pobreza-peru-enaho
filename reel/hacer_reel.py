@@ -252,6 +252,9 @@ parser.add_argument("--voz", required=True, help="tu nota de voz (.m4a, .ogg, .m
 # En Windows los modelos están bajados como archivos normales: la caché de
 # Hugging Face usa symlinks y Windows no los permite sin modo desarrollador.
 parser.add_argument("--modelos", required=True, help="carpeta con Qwen3-TTS y faster-whisper")
+# Whisper puede escribir mal lo que dice la referencia ("LINEI"); si sabemos qué texto se
+# leyó, se lo damos tal cual al clon, que aprende mejor con el texto exacto.
+parser.add_argument("--texto-referencia", help="el texto que se leyó en la nota de voz")
 parser.add_argument("--reusar-audio", action="store_true",
                     help="usa los reel/audio/escena_N.wav ya generados y solo rehace el video")
 argumentos = parser.parse_args()
@@ -295,6 +298,8 @@ if not argumentos.reusar_audio:
     audio_completo, frecuencia_voz = soundfile.read(ruta_voz_completa)
     recorte = audio_completo[: int((fin_referencia + 0.2) * frecuencia_voz)]
     soundfile.write(CARPETA_AUDIO / "referencia.wav", recorte, frecuencia_voz)
+    if argumentos.texto_referencia:
+        texto_referencia = argumentos.texto_referencia
     print(f"   Referencia de {fin_referencia:.1f} s: «{texto_referencia.strip()}»")
 
     print("2/5 Narrando con la voz clonada (en CPU tarda varios minutos)...")
