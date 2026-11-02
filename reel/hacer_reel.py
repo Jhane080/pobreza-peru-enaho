@@ -54,7 +54,7 @@ FUENTE_PIE = ImageFont.truetype(FUENTES + "segoeui.ttf", 30)
 
 # Más del 15 % de palabras mal entendidas por Whisper = la escena se genera de nuevo.
 ERROR_MAXIMO = 0.15
-INTENTOS = 4
+INTENTOS = 6
 # Nombres que Whisper no conoce: sin esta pista escribe "Ucayaly" o "Inei".
 PALABRAS_ESPERADAS = "INEI Callao Ucayali Tumbes Lima Metropolitana pandemia"
 CORRECCIONES = {"Inei": "INEI", "inei": "INEI", "Ucayaly": "Ucayali", "Callali": "Callao", "Callali,": "Callao,"}
@@ -255,6 +255,8 @@ parser.add_argument("--modelos", required=True, help="carpeta con Qwen3-TTS y fa
 # Whisper puede escribir mal lo que dice la referencia ("LINEI"); si sabemos qué texto se
 # leyó, se lo damos tal cual al clon, que aprende mejor con el texto exacto.
 parser.add_argument("--texto-referencia", help="el texto que se leyó en la nota de voz")
+# Para rehacer una sola escena sin volver a narrar las demás.
+parser.add_argument("--solo-escena", type=int, help="número de la escena que se vuelve a narrar")
 parser.add_argument("--reusar-audio", action="store_true",
                     help="usa los reel/audio/escena_N.wav ya generados y solo rehace el video")
 argumentos = parser.parse_args()
@@ -317,11 +319,12 @@ frecuencia = 24000
 for numero, escena in enumerate(guion["escenas"], start=1):
     ruta_escena = CARPETA_AUDIO / f"escena_{numero}.wav"
 
-    if argumentos.reusar_audio:
+    reusar_esta = argumentos.reusar_audio or (argumentos.solo_escena and numero != argumentos.solo_escena)
+    if reusar_esta:
         mejor_audio, frecuencia = soundfile.read(ruta_escena)
         mejores_palabras = transcribir(whisper, ruta_escena)
     else:
-        mejor_error = 1.0
+        mejor_error = float("inf")
         for intento in range(1, INTENTOS + 1):
             audios, frecuencia = tts.generate_voice_clone(text=escena["frase"], language="Spanish",
                                                           voice_clone_prompt=voz_clonada)
@@ -333,6 +336,12 @@ for numero, escena in enumerate(guion["escenas"], start=1):
             error = jiwer.wer(normalizar(escena["frase"]), normalizar(lo_que_se_entiende))
             print(f"   Escena {numero}, intento {intento}: {error:.0%} de palabras mal entendidas")
 
+            # El clon a veces corta el final de la frase: exigimos que diga la última palabra.
+            ultima_palabra = normalizar(escena["frase"]).split()[-1]
+            completa = normalizar(lo_que_se_entiende).endswith(ultima_palabra)
+            if not completa:
+                print(f"   Escena {numero}, intento {intento}: cortó el final, se genera de nuevo")
+                error = max(error, ERROR_MAXIMO + 0.01) + 0.5
             if error < mejor_error:
                 mejor_error = error
                 mejor_audio = audios[0]
